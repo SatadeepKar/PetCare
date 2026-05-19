@@ -100,7 +100,7 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 
 ## Author
 
-- [rohit-2059](https://github.com/rohit-2059)
+- [SatadeepKar](https://github.com/SatadeepKar)
 
 ---
 

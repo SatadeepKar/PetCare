@@ -1,12 +1,10 @@
-<?php
-session_start(); // Start session to maintain consistency with index.php
-?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- This server is static (no PHP execution), so visiting `/index.php` should still show the real frontend. -->
+    <meta http-equiv="refresh" content="0; url=./index.html" />
     <title>Veterinary Shops Locator - PetCare</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://cdn.tailwindcss.com"></script>

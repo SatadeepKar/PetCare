@@ -24,6 +24,19 @@ $stmt = $conn->prepare("SELECT * FROM pets WHERE user_id = ?");
 $stmt->bind_param("i", $user_id);
 $stmt->execute();
 $pets = $stmt->get_result();
+$pets_count = $pets->num_rows;
+
+// Stats: all pending reminders (not filter-dependent)
+$stmt = $conn->prepare("SELECT COUNT(*) AS c FROM reminders r JOIN pets p ON r.pet_id = p.id WHERE p.user_id = ? AND r.status = 'pending'");
+$stmt->bind_param("i", $user_id);
+$stmt->execute();
+$active_reminders_count = (int)$stmt->get_result()->fetch_assoc()['c'];
+
+// Stats: completed reminders
+$stmt = $conn->prepare("SELECT COUNT(*) AS c FROM reminders r JOIN pets p ON r.pet_id = p.id WHERE p.user_id = ? AND r.status = 'completed'");
+$stmt->bind_param("i", $user_id);
+$stmt->execute();
+$completed_tasks_count = (int)$stmt->get_result()->fetch_assoc()['c'];
 
 // Determine reminder filter (default to "today")
 $filter = isset($_GET['filter']) ? $_GET['filter'] : 'today';
@@ -92,16 +105,16 @@ while ($row = $journal_results->fetch_assoc()) {
 // Handle reminder completion and deletion
 if (isset($_GET['complete_reminder'])) {
     $reminder_id = (int)$_GET['complete_reminder'];
-    $stmt = $conn->prepare("UPDATE reminders SET status = 'completed' WHERE id = ?");
-    $stmt->bind_param("i", $reminder_id);
+    $stmt = $conn->prepare("UPDATE reminders r JOIN pets p ON r.pet_id = p.id SET r.status = 'completed' WHERE r.id = ? AND p.user_id = ?");
+    $stmt->bind_param("ii", $reminder_id, $user_id);
     if ($stmt->execute()) {
         header("Location: dashboard.php?filter=$filter&success=1");
         exit();
     }
 } elseif (isset($_GET['delete_reminder'])) {
     $reminder_id = (int)$_GET['delete_reminder'];
-    $stmt = $conn->prepare("DELETE FROM reminders WHERE id = ?");
-    $stmt->bind_param("i", $reminder_id);
+    $stmt = $conn->prepare("DELETE r FROM reminders r JOIN pets p ON r.pet_id = p.id WHERE r.id = ? AND p.user_id = ?");
+    $stmt->bind_param("ii", $reminder_id, $user_id);
     if ($stmt->execute()) {
         header("Location: dashboard.php?filter=$filter&success=1");
         exit();
@@ -1075,6 +1088,12 @@ if ($stmt === false) {
                     </a>
                 </li>
                 <li>
+                    <a href="VetShopsLocator/public/index.html" target="_blank" rel="noopener">
+                        <i class="fas fa-stethoscope"></i>
+                        <span>Vet Locator</span>
+                    </a>
+                </li>
+                <li>
                     <a href="set_reminder.php">
                         <i class="fas fa-bell"></i>
                         <span>Set Reminders</span>
@@ -1128,6 +1147,10 @@ if ($stmt === false) {
                         <a href="gallery.php" class="header-button">
                             <i class="far fa-images"></i>
                             <span>Gallery</span>
+                        </a>
+                        <a href="VetShopsLocator/public/index.html" class="header-button" target="_blank" rel="noopener">
+                            <i class="fas fa-stethoscope"></i>
+                            <span>Vet Locator</span>
                         </a>
                         <a href="settings.php" class="header-button">
                             <i class="fas fa-gear"></i>
@@ -1189,7 +1212,7 @@ if ($stmt === false) {
                             <i class="fas fa-dog"></i>
                         </div>
                     </div>
-                    <div class="stat-card-value"><?php echo $pets->num_rows; ?></div>
+                    <div class="stat-card-value"><?php echo $pets_count; ?></div>
                     <div class="stat-card-label">Total Pets</div>
                 </div>
                 
@@ -1199,7 +1222,7 @@ if ($stmt === false) {
                             <i class="fas fa-bell"></i>
                         </div>
                     </div>
-                    <div class="stat-card-value"><?php echo $reminders->num_rows; ?></div>
+                    <div class="stat-card-value"><?php echo $active_reminders_count; ?></div>
                     <div class="stat-card-label">Active Reminders</div>
                 </div>
                 
@@ -1209,13 +1232,7 @@ if ($stmt === false) {
                             <i class="fas fa-calendar-check"></i>
                         </div>
                     </div>
-                    <div class="stat-card-value"><?php 
-                        $completed_count = 0;
-                        foreach ($calendar_events as $event) {
-                            if ($event['status'] === 'completed') $completed_count++;
-                        }
-                        echo $completed_count;
-                    ?></div>
+                    <div class="stat-card-value"><?php echo $completed_tasks_count; ?></div>
                     <div class="stat-card-label">Completed Tasks</div>
                 </div>
             </div>
@@ -1494,7 +1511,7 @@ if ($stmt === false) {
                             <div class="note-item">
                                 <div>
                                     <p class="note-content"><?php echo htmlspecialchars($note['content']); ?></p>
-                                    <p class="note-meta">Added on <?php echo date('M d, Y, h:i A', strtotime($note['content'])); ?></p>
+                                    <p class="note-meta">Added on <?php echo date('M d, Y, h:i A', strtotime($note['created_at'])); ?></p>
                                 </div>
                                 <a href="javascript:void(0)" class="note-delete" onclick="confirmDeleteNote(<?php echo $note['id']; ?>, '<?php echo $filter; ?>')">
                                     <i class="fas fa-trash"></i>

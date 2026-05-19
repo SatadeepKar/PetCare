@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PetCare - Veterinary Shops Locator</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <header class="app-header">
+    <div class="container header-inner">
+      <div class="brand">
+        <div class="brand-icon" aria-hidden="true">
+          <i class="fas fa-paw"></i>
+        </div>
+        <div>
+          <h1 class="brand-title">PetCare Veterinary Locator</h1>
+          <p class="brand-subtitle">Find trusted veterinary shops near you.</p>
+        </div>
+      </div>
+
+      <div class="header-badge" aria-label="App tagline">
+        <i class="fa-solid fa-heart-pulse"></i>
+        <span>Fast. Friendly. Useful.</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="panel hero-panel" aria-labelledby="find-title">
+      <div class="panel-head">
+        <h2 id="find-title" class="panel-title">
+          <i class="fas fa-search-location"></i>
+          Find Veterinary Shops
+        </h2>
+        <p class="panel-subtitle">Search by city or use your location. We’ll show nearby options on the map.</p>
+      </div>
+
+      <form id="searchForm" class="search-form" autocomplete="off">
+        <div class="input-wrap">
+          <label class="sr-only" for="citySearch">Enter city name</label>
+          <i class="fas fa-city input-icon" aria-hidden="true"></i>
+          <input
+            id="citySearch"
+            name="city"
+            type="text"
+            placeholder="Example: Pune, Delhi, Mumbai..."
+            inputmode="search"
+          />
+          <div class="helper-text">Tip: Type the city name, then press Enter.</div>
+        </div>
+
+        <div class="actions">
+          <button id="searchBtn" type="submit" class="btn btn-primary">
+            <i class="fas fa-magnifying-glass"></i>
+            Search
+          </button>
+          <button id="locationBtn" type="button" class="btn btn-secondary">
+            <i class="fas fa-location-crosshairs"></i>
+            Use my location
+          </button>
+        </div>
+      </form>
+
+      <div class="status-row" aria-live="polite">
+        <p id="status" class="status-text"></p>
+        <p id="error" class="error-text" role="alert"></p>
+      </div>
+    </section>
+
+    <section class="grid" aria-label="Map and results">
+      <article class="panel map-card">
+        <div class="panel-head panel-head-row">
+          <h2 class="panel-title">
+            <i class="fas fa-map-location-dot"></i>
+            Map
+          </h2>
+          <div class="map-hint">
+            <i class="fas fa-circle-info" aria-hidden="true"></i>
+            <span>Hover cards to highlight shops.</span>
+          </div>
+        </div>
+
+        <div id="map" class="map" role="application" aria-label="Map showing veterinary shops"></div>
+      </article>
+
+      <aside class="panel results-card">
+        <div class="panel-head panel-head-row">
+          <h2 class="panel-title">
+            <i class="fas fa-clinic-medical"></i>
+            Nearby Veterinary Shops
+          </h2>
+          <div class="results-meta" aria-label="Result count">
+            <span id="resultCount" class="count-pill">0</span>
+          </div>
+        </div>
+
+        <div id="loading" class="loading" hidden>
+          <div class="loading-spinner" aria-hidden="true"></div>
+          <div class="loading-text">
+            <div class="loading-title">Searching…</div>
+            <div class="loading-subtitle">Finding shops around your location.</div>
+          </div>
+        </div>
+
+        <div id="emptyState" class="empty-state" hidden>
+          <div class="empty-icon" aria-hidden="true">
+            <i class="fas fa-store-slash"></i>
+          </div>
+          <div class="empty-title">No shops found</div>
+          <div class="empty-subtitle">Try another city or use your current location.</div>
+        </div>
+
+        <div id="shops" class="shops-list" role="list" aria-label="List of veterinary shops"></div>
+      </aside>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container footer-inner">
+      <div>
+        <strong>PetCare</strong> <span class="muted">Veterinary Shops Locator</span>
+      </div>
+      <div class="footer-note">
+        <i class="fas fa-shield-heart"></i>
+        <span>Find help for your pet quickly and safely.</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="./app.js" defer></script>
+</body>
+</html>
+

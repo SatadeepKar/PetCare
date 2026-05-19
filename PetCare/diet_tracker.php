@@ -527,6 +527,10 @@ if (isset($_GET['fetch_diets']) && isset($_GET['pet_id'])) {
                             <i class="fas fa-home"></i>
                             <span>Dashboard</span>
                         </a>
+                        <a href="VetShopsLocator/public/index.html" class="header-button" target="_blank" rel="noopener">
+                            <i class="fas fa-stethoscope"></i>
+                            <span>Vet Locator</span>
+                        </a>
                         <!-- <a href="settings.php" class="header-button">
                             <i class="fas fa-cog"></i>
                             <span>Settings</span>

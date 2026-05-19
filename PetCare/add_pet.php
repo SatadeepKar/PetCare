@@ -539,17 +539,24 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['add_pet'])) {
                             </div>
                         </div>
                         
-                        <!-- Form Actions -->
-                        <div class="pt-6 border-t border-gray-100 flex flex-col-reverse md:flex-row justify-between items-center gap-4">
+                        <!-- Wizard navigation -->
+                        <div class="pt-6 border-t border-gray-100 flex flex-col-reverse md:flex-row justify-between items-center gap-4" id="wizardNav">
                             <a href="dashboard.php" class="w-full md:w-auto text-center bg-white border border-gray-300 text-gray-700 px-6 py-3 rounded-lg hover:bg-gray-50 transition-colors flex items-center justify-center gap-2">
                                 <i class="fas fa-arrow-left"></i>
                                 <span>Back to Dashboard</span>
                             </a>
-                            
-                            <button type="submit" name="add_pet" class="w-full md:w-auto bg-primary-600 hover:bg-primary-700 text-white px-6 py-3 rounded-lg transition-colors flex items-center justify-center gap-2 shadow-md hover:shadow-lg">
-                                <i class="fas fa-plus-circle"></i>
-                                <span>Add Pet</span>
-                            </button>
+                            <div class="flex gap-3 w-full md:w-auto justify-end">
+                                <button type="button" id="prevStep" class="hidden bg-primary-100 text-primary-700 px-6 py-3 rounded-lg font-medium hover:bg-primary-200 transition-colors">
+                                    <i class="fas fa-chevron-left"></i> Previous
+                                </button>
+                                <button type="button" id="nextStep" class="bg-primary-600 hover:bg-primary-700 text-white px-6 py-3 rounded-lg font-medium transition-colors">
+                                    Next <i class="fas fa-chevron-right"></i>
+                                </button>
+                                <button type="submit" name="add_pet" id="submitPet" class="hidden bg-primary-600 hover:bg-primary-700 text-white px-6 py-3 rounded-lg transition-colors flex items-center justify-center gap-2 shadow-md">
+                                    <i class="fas fa-plus-circle"></i>
+                                    <span>Add Pet</span>
+                                </button>
+                            </div>
                         </div>
                     </form>
                 </div>
@@ -645,6 +652,48 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['add_pet'])) {
         
         // Initialize progress
         updateProgress();
+
+        // Multi-step wizard (Basic Info → Health → Photo)
+        const wizardSteps = ['section-basic', 'section-health', 'section-photo'];
+        let wizardIndex = 0;
+        const prevBtn = document.getElementById('prevStep');
+        const nextBtn = document.getElementById('nextStep');
+        const submitBtn = document.getElementById('submitPet');
+
+        function showWizardStep(index) {
+            wizardSteps.forEach((id, i) => {
+                const el = document.getElementById(id);
+                if (el) el.style.display = i === index ? 'block' : 'none';
+            });
+            prevBtn.classList.toggle('hidden', index === 0);
+            nextBtn.classList.toggle('hidden', index === wizardSteps.length - 1);
+            submitBtn.classList.toggle('hidden', index !== wizardSteps.length - 1);
+            progressBar.style.width = `${Math.round(((index + 1) / wizardSteps.length) * 100)}%`;
+        }
+
+        nextBtn.addEventListener('click', () => {
+            if (wizardIndex === 0) {
+                const name = document.getElementById('pet_name').value.trim();
+                const species = document.getElementById('species').value;
+                if (!name || !species) {
+                    alert('Please enter your pet name and species before continuing.');
+                    return;
+                }
+            }
+            if (wizardIndex < wizardSteps.length - 1) {
+                wizardIndex++;
+                showWizardStep(wizardIndex);
+            }
+        });
+
+        prevBtn.addEventListener('click', () => {
+            if (wizardIndex > 0) {
+                wizardIndex--;
+                showWizardStep(wizardIndex);
+            }
+        });
+
+        showWizardStep(0);
         
         // Form validation enhancement
         const petForm = document.getElementById('petForm');

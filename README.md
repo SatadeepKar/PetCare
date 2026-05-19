@@ -19,8 +19,40 @@ PetCare is a project designed to assist pet owners, with a primary focus on loca
 
 ### Prerequisites
 
-- Node.js (v14 or higher)
-- npm
+- PHP 8+ with MySQL/MariaDB (XAMPP recommended for the main app)
+- Node.js (v14 or higher) for the Veterinary Shops Locator API
+
+### Database setup (PHP app)
+
+1. Start MySQL and import `PetCare/schema.sql` in phpMyAdmin (creates the `petcare` database and tables).
+2. Serve the PHP folder `PetCare/` via Apache (e.g. `http://localhost/PetCare/`).
+3. Sign up at `signup.php`, then use the dashboard and features below.
+
+### Main app features (PHP)
+
+- Landing page with login, signup, and vet locator link
+- Dashboard: pets, reminders, notes, FullCalendar
+- Add pet (multi-step), pet profile, diet tracker, gallery, settings
+- Set reminders (general, medication, vet appointment) with recurrence
+
+### Run everything (Windows)
+
+From the repo root, double-click **`start-petcare.bat`** or run:
+
+```powershell
+.\start-petcare.ps1
+```
+
+This starts:
+
+- **PHP app** at `http://localhost:8888` (landing, dashboard, pets, diet, reminders)
+- **Vet Locator API + UI** at `http://localhost:3002`
+
+Requires **PHP** and **Node.js** in your PATH, and **MySQL** running (e.g. XAMPP) with `schema.sql` imported.
+
+Options: `.\start-petcare.ps1 -NoBrowser` to skip opening the browser.
+
+### Vet locator (Node)
 
 ### Installation
 

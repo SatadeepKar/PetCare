@@ -19,6 +19,7 @@ $username = $user['username'];
 
 // Fetch pets for dropdown
 $pets = $conn->query("SELECT * FROM pets WHERE user_id = $user_id");
+$selected_pet_id = isset($_GET['pet_id']) ? (int)$_GET['pet_id'] : 0;
 
 // Handle form submission
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['add_reminder'])) {
@@ -482,7 +483,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['add_reminder'])) {
                                             $pets->data_seek(0); // Reset pointer
                                             while ($pet = $pets->fetch_assoc()):
                                         ?>
-                                            <option value="<?php echo $pet['id']; ?>"><?php echo htmlspecialchars($pet['name']); ?></option>
+                                            <option value="<?php echo $pet['id']; ?>"<?php echo ($selected_pet_id === (int)$pet['id']) ? ' selected' : ''; ?>><?php echo htmlspecialchars($pet['name']); ?></option>
                                         <?php 
                                             endwhile;
                                         } else {

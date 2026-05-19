@@ -1,3 +1,4 @@
+<?php session_start(); ?>
 <!DOCTYPE html>
 <html lang="en" class="light">
 <head>
@@ -339,9 +340,6 @@
   </style>
 </head>
 <body class="bg-gray-50">
-  <!-- <?php
-    session_start(); // Moved to the top to initialize session once
-  ?> -->
   <!-- Header -->
   <header class="bg-white shadow-md sticky top-0 z-50 backdrop-blur-md bg-white/90">
     <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
@@ -353,7 +351,7 @@
       </div>
       <!-- Desktop Navigation -->
       <div class="hidden md:flex space-x-8 items-center">
-      <a href="VetShopsLocator/public/index.php" class="mobile-vet-button">
+      <a href="VetShopsLocator/public/index.html" class="mobile-vet-button">
   <i class="fas fa-stethoscope"></i> Nearby Veterinary
 </a>
 
@@ -395,7 +393,7 @@
         </button>
       </div>
       <div class="flex flex-col space-y-6 px-8">
-      <a href="VetShopsLocator\public\index.phpvet_locator.php" class="mobile-vet-button"><i class="fas fa-stethoscope"></i>Nearby Veterinary</a>
+      <a href="VetShopsLocator/public/index.html" class="mobile-vet-button"><i class="fas fa-stethoscope"></i>Nearby Veterinary</a>
         <a href="#features" class="text-gray-700 hover:text-primary-600 font-medium text-lg">Features</a>
         <a href="#testimonials" class="text-gray-700 hover:text-primary-600 font-medium text-lg">Testimonials</a>
         <a href="#about" class="text-gray-700 hover:text-primary-600 font-medium text-lg">About</a>

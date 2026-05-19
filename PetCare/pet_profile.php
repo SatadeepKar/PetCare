@@ -34,8 +34,50 @@ $health_records = $conn->query("SELECT * FROM health_records WHERE pet_id = $pet
 // Fetch journal entries
 $journal_entries = $conn->query("SELECT * FROM pet_journal WHERE pet_id = $pet_id ORDER BY entry_date DESC");
 
-// Fetch medication and vet reminders
-$reminders = $conn->query("SELECT * FROM reminders WHERE pet_id = $pet_id AND type IN ('medication', 'vet_appointment') AND status = 'pending' ORDER BY due_date, due_time");
+// Fetch all pending reminders for this pet
+$reminders = $conn->query("SELECT * FROM reminders WHERE pet_id = $pet_id AND status = 'pending' ORDER BY due_date, due_time");
+
+// Calendar events for this pet
+$calendar_events = [];
+$rem_q = $conn->prepare("SELECT id, task, due_date, due_time, type, status FROM reminders WHERE pet_id = ?");
+$rem_q->bind_param("i", $pet_id);
+$rem_q->execute();
+$rem_res = $rem_q->get_result();
+while ($row = $rem_res->fetch_assoc()) {
+    $calendar_events[] = [
+        'title' => $row['task'],
+        'start' => $row['due_date'] . 'T' . $row['due_time'],
+        'type' => $row['type'],
+        'status' => $row['status'],
+        'id' => $row['id'],
+    ];
+}
+$health_q = $conn->prepare("SELECT id, type, details, date FROM health_records WHERE pet_id = ?");
+$health_q->bind_param("i", $pet_id);
+$health_q->execute();
+$health_res = $health_q->get_result();
+while ($row = $health_res->fetch_assoc()) {
+    $calendar_events[] = [
+        'title' => ucfirst(str_replace('_', ' ', $row['type'])) . ': ' . $row['details'],
+        'start' => $row['date'],
+        'type' => 'health_' . $row['type'],
+        'status' => 'completed',
+        'id' => $row['id'],
+    ];
+}
+$journal_q = $conn->prepare("SELECT id, entry, entry_date FROM pet_journal WHERE pet_id = ?");
+$journal_q->bind_param("i", $pet_id);
+$journal_q->execute();
+$journal_res = $journal_q->get_result();
+while ($row = $journal_res->fetch_assoc()) {
+    $calendar_events[] = [
+        'title' => 'Journal: ' . substr($row['entry'], 0, 24),
+        'start' => $row['entry_date'],
+        'type' => 'journal',
+        'status' => 'completed',
+        'id' => $row['id'],
+    ];
+}
 
 // Handle health record submission
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['add_health_record'])) {
@@ -104,8 +146,9 @@ if (isset($_GET['delete_pet']) && $_GET['delete_pet'] == $pet_id) {
     $conn->query("DELETE FROM health_records WHERE pet_id = $pet_id");
     // Delete associated journal entries
     $conn->query("DELETE FROM pet_journal WHERE pet_id = $pet_id");
-    // Delete associated reminders
+    // Delete associated reminders and diet records
     $conn->query("DELETE FROM reminders WHERE pet_id = $pet_id");
+    $conn->query("DELETE FROM diet_charts WHERE pet_id = $pet_id");
     // Delete pet photo if it exists and isn't the default
     if ($pet['photo'] && file_exists($pet['photo']) && strpos($pet['photo'], 'placeholder.com') === false) {
         unlink($pet['photo']);
@@ -141,6 +184,8 @@ if (isset($_GET['complete_reminder']) && is_numeric($_GET['complete_reminder']))
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.0/main.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.0/main.min.js"></script>
     <style>
         :root {
             --primary-light: #a78bfa;
@@ -840,6 +885,14 @@ if (isset($_GET['complete_reminder']) && is_numeric($_GET['complete_reminder']))
                         <i class="fas fa-images"></i>
                         <span>Gallery</span>
                     </a>
+                    <a href="diet_tracker.php" class="nav-link">
+                        <i class="fas fa-utensils"></i>
+                        <span>Diet Tracker</span>
+                    </a>
+                    <a href="VetShopsLocator/public/index.html" class="nav-link" target="_blank" rel="noopener">
+                        <i class="fas fa-stethoscope"></i>
+                        <span>Vet Locator</span>
+                    </a>
                     <a href="settings.php" class="nav-link">
                         <i class="fas fa-cog"></i>
                         <span>Settings</span>
@@ -867,6 +920,14 @@ if (isset($_GET['complete_reminder']) && is_numeric($_GET['complete_reminder']))
                 <a href="gallery.php" class="nav-link">
                     <i class="fas fa-images"></i>
                     <span>Gallery</span>
+                </a>
+                <a href="diet_tracker.php" class="nav-link">
+                    <i class="fas fa-utensils"></i>
+                    <span>Diet Tracker</span>
+                </a>
+                <a href="VetShopsLocator/public/index.html" class="nav-link" target="_blank" rel="noopener">
+                    <i class="fas fa-stethoscope"></i>
+                    <span>Vet Locator</span>
                 </a>
                 <a href="settings.php" class="nav-link">
                     <i class="fas fa-cog"></i>
@@ -936,6 +997,46 @@ if (isset($_GET['complete_reminder']) && is_numeric($_GET['complete_reminder']))
                             <?php endif; ?>
                         </div>
                     </div>
+                </div>
+            </section>
+
+            <!-- Upcoming Reminders -->
+            <section class="section fade-in">
+                <div class="section-header">
+                    <h2 class="section-title"><i class="fas fa-bell"></i> Upcoming Reminders</h2>
+                    <a href="set_reminder.php?pet_id=<?php echo $pet_id; ?>" class="btn btn-primary btn-sm">
+                        <i class="fas fa-plus"></i> Set a New Reminder
+                    </a>
+                </div>
+                <div class="section-content">
+                    <?php
+                    $reminders->data_seek(0);
+                    if ($reminders->num_rows > 0):
+                        while ($up = $reminders->fetch_assoc()):
+                    ?>
+                    <div class="list-item" style="margin-bottom: 0.75rem;">
+                        <div class="list-item-header">
+                            <span class="list-item-title"><?php echo htmlspecialchars($up['task']); ?></span>
+                            <span class="badge badge-info"><?php echo ucwords(str_replace('_', ' ', $up['type'])); ?></span>
+                        </div>
+                        <div class="list-item-meta">
+                            <span><i class="far fa-calendar-alt"></i> <?php echo $up['due_date']; ?> at <?php echo $up['due_time']; ?></span>
+                            <a href="pet_profile.php?pet_id=<?php echo $pet_id; ?>&complete_reminder=<?php echo $up['id']; ?>" class="btn btn-success btn-sm">Complete</a>
+                        </div>
+                    </div>
+                    <?php endwhile; else: ?>
+                    <p class="empty-state-text">No upcoming reminders. <a href="set_reminder.php?pet_id=<?php echo $pet_id; ?>">Add one</a>.</p>
+                    <?php endif; ?>
+                </div>
+            </section>
+
+            <!-- Pet Care Calendar -->
+            <section class="section fade-in">
+                <div class="section-header">
+                    <h2 class="section-title"><i class="fas fa-calendar"></i> Pet Care Calendar</h2>
+                </div>
+                <div class="section-content" style="background: #fff; padding: 1rem; border-radius: var(--border-radius);">
+                    <div id="petCalendar"></div>
                 </div>
             </section>
 
@@ -1063,7 +1164,7 @@ if (isset($_GET['complete_reminder']) && is_numeric($_GET['complete_reminder']))
 
                     <?php if ($reminders->num_rows > 0): ?>
                     <div class="section-content" style="text-align: center; padding-top: 0;">
-                        <a href="set_reminders.php?pet_id=<?php echo $pet_id; ?>" class="btn btn-primary">
+                        <a href="set_reminder.php?pet_id=<?php echo $pet_id; ?>" class="btn btn-primary">
                             <i class="fas fa-plus"></i> Add Reminder
                         </a>
                     </div>
@@ -1359,6 +1460,23 @@ if (isset($_GET['complete_reminder']) && is_numeric($_GET['complete_reminder']))
             showToast('success', 'Success', '<?php echo $_GET['success']; ?>');
         });
         <?php endif; ?>
+
+        document.addEventListener('DOMContentLoaded', function() {
+            var calEl = document.getElementById('petCalendar');
+            if (calEl && typeof FullCalendar !== 'undefined') {
+                var calendar = new FullCalendar.Calendar(calEl, {
+                    initialView: 'dayGridMonth',
+                    headerToolbar: {
+                        left: 'prev,next today',
+                        center: 'title',
+                        right: 'dayGridMonth,timeGridWeek,listWeek'
+                    },
+                    events: <?php echo json_encode($calendar_events); ?>,
+                    height: 'auto'
+                });
+                calendar.render();
+            }
+        });
     </script>
 </body>
 </html>

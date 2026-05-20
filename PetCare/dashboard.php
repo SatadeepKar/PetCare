@@ -5,10 +5,8 @@ if (!isset($_SESSION['user_id'])) {
     exit();
 }
 
-$conn = new mysqli("localhost", "root", "", "petcare");
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
-}
+require_once 'config.php';
+$conn = get_db();
 date_default_timezone_set('Asia/Kolkata'); // Set timezone to IST
 $today = date("Y-m-d");
 
@@ -1088,7 +1086,7 @@ if ($stmt === false) {
                     </a>
                 </li>
                 <li>
-                    <a href="VetShopsLocator/public/index.html" target="_blank" rel="noopener">
+                    <a href="<?php echo VET_LOCATOR_URL; ?>" target="_blank" rel="noopener">
                         <i class="fas fa-stethoscope"></i>
                         <span>Vet Locator</span>
                     </a>
@@ -1148,7 +1146,7 @@ if ($stmt === false) {
                             <i class="far fa-images"></i>
                             <span>Gallery</span>
                         </a>
-                        <a href="VetShopsLocator/public/index.html" class="header-button" target="_blank" rel="noopener">
+                        <a href="<?php echo VET_LOCATOR_URL; ?>" class="header-button" target="_blank" rel="noopener">
                             <i class="fas fa-stethoscope"></i>
                             <span>Vet Locator</span>
                         </a>

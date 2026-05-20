@@ -6,12 +6,8 @@ if (!isset($_SESSION['user_id'])) {
     exit();
 }
 
-$conn = new mysqli("localhost", "root", "", "petcare");
-if ($conn->connect_error) {
-    header('Content-Type: application/json');
-    echo json_encode(['success' => false, 'error' => 'Database connection failed']);
-    exit();
-}
+require_once 'config.php';
+$conn = get_db();
 
 $user_id = $_SESSION['user_id'];
 

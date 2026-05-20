@@ -5,10 +5,8 @@ if (!isset($_SESSION['user_id'])) {
     exit();
 }
 
-$conn = new mysqli("localhost", "root", "", "petcare");
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
-}
+require_once 'config.php';
+$conn = get_db();
 
 $user_id = $_SESSION['user_id'];
 
@@ -396,7 +394,7 @@ $photos = $stmt->get_result();
                         <i class="fas fa-home"></i>
                         <span>Dashboard</span>
                     </a>
-                    <a href="VetShopsLocator/public/index.html" class="header-button" target="_blank" rel="noopener">
+                    <a href="<?php echo VET_LOCATOR_URL; ?>" class="header-button" target="_blank" rel="noopener">
                         <i class="fas fa-stethoscope"></i>
                         <span>Vet Locator</span>
                     </a>

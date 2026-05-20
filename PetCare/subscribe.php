@@ -5,13 +5,8 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 
 // Database connection
-$conn = new mysqli("localhost", "root", "", "petcare");
-
-if ($conn->connect_error) {
-    $_SESSION['subscribe_message'] = "Error: Connection failed. Please try again later.";
-    header("Location: index.php");
-    exit();
-}
+require_once 'config.php';
+$conn = get_db();
 
 // Include PHPMailer
 require 'vendor/PHPMailer/src/PHPMailer.php';

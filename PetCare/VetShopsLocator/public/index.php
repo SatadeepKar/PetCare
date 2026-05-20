@@ -286,6 +286,7 @@
     </footer>
 
     <script>
+        const apiBase = window.location.origin.includes('localhost') ? 'http://localhost:3002' : '';
         let map;
         const shopsMarkers = [];
 
@@ -315,7 +316,7 @@
 
             try {
                 // Get coordinates for the city
-                const geocodeResponse = await fetch(`http://localhost:3002/api/geocode?city=${encodeURIComponent(city)}`);
+                const geocodeResponse = await fetch(`${apiBase}/api/geocode?city=${encodeURIComponent(city)}`);
                 if (!geocodeResponse.ok) {
                     const errorData = await geocodeResponse.json();
                     throw new Error(errorData.error || `Failed to find location: ${city}`);
@@ -434,7 +435,7 @@
 
         async function getVetShops(latitude, longitude) {
             try {
-                const response = await fetch(`http://localhost:3002/api/vetshops?latitude=${latitude}&longitude=${longitude}`);
+                const response = await fetch(`${apiBase}/api/vetshops?latitude=${latitude}&longitude=${longitude}`);
                 if (!response.ok) {
                     const errorData = await response.json();
                     throw new Error(errorData.details || `Server returned ${response.status}: ${response.statusText}`);

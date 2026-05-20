@@ -5,10 +5,8 @@ if (!isset($_SESSION['user_id'])) {
     exit();
 }
 
-$conn = new mysqli("localhost", "root", "", "petcare");
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
-}
+require_once 'config.php';
+$conn = get_db();
 
 if (!isset($_GET['pet_id'])) {
     header("Location: dashboard.php");
@@ -889,7 +887,7 @@ if (isset($_GET['complete_reminder']) && is_numeric($_GET['complete_reminder']))
                         <i class="fas fa-utensils"></i>
                         <span>Diet Tracker</span>
                     </a>
-                    <a href="VetShopsLocator/public/index.html" class="nav-link" target="_blank" rel="noopener">
+                    <a href="<?php echo VET_LOCATOR_URL; ?>" class="nav-link" target="_blank" rel="noopener">
                         <i class="fas fa-stethoscope"></i>
                         <span>Vet Locator</span>
                     </a>
@@ -925,7 +923,7 @@ if (isset($_GET['complete_reminder']) && is_numeric($_GET['complete_reminder']))
                     <i class="fas fa-utensils"></i>
                     <span>Diet Tracker</span>
                 </a>
-                <a href="VetShopsLocator/public/index.html" class="nav-link" target="_blank" rel="noopener">
+                <a href="<?php echo VET_LOCATOR_URL; ?>" class="nav-link" target="_blank" rel="noopener">
                     <i class="fas fa-stethoscope"></i>
                     <span>Vet Locator</span>
                 </a>

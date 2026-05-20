@@ -1,4 +1,7 @@
-<?php session_start(); ?>
+<?php 
+session_start(); 
+require_once 'config.php';
+?>
 <!DOCTYPE html>
 <html lang="en" class="light">
 <head>
@@ -351,7 +354,7 @@
       </div>
       <!-- Desktop Navigation -->
       <div class="hidden md:flex space-x-8 items-center">
-      <a href="VetShopsLocator/public/index.html" class="mobile-vet-button">
+      <a href="<?php echo VET_LOCATOR_URL; ?>" class="mobile-vet-button">
   <i class="fas fa-stethoscope"></i> Nearby Veterinary
 </a>
 
@@ -393,7 +396,7 @@
         </button>
       </div>
       <div class="flex flex-col space-y-6 px-8">
-      <a href="VetShopsLocator/public/index.html" class="mobile-vet-button"><i class="fas fa-stethoscope"></i>Nearby Veterinary</a>
+      <a href="<?php echo VET_LOCATOR_URL; ?>" class="mobile-vet-button"><i class="fas fa-stethoscope"></i>Nearby Veterinary</a>
         <a href="#features" class="text-gray-700 hover:text-primary-600 font-medium text-lg">Features</a>
         <a href="#testimonials" class="text-gray-700 hover:text-primary-600 font-medium text-lg">Testimonials</a>
         <a href="#about" class="text-gray-700 hover:text-primary-600 font-medium text-lg">About</a>

@@ -98,10 +98,8 @@
       $password = password_hash($_POST['password'], PASSWORD_DEFAULT); // Hash password
 
       // Database connection
-      $conn = new mysqli("localhost", "root", "", "petcare");
-      if ($conn->connect_error) {
-        die("Connection failed: " . $conn->connect_error);
-      }
+      require_once 'config.php';
+      $conn = get_db();
 
       // Check for existing email or username
       $check_sql = "SELECT * FROM users WHERE email = ? OR username = ?";
